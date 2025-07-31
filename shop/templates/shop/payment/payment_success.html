@@ -1,0 +1,16 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Payment Successful{% endblock %}
+
+{% block body %}
+<div class="container text-center mt-5">
+    <h1 class="text-success">✅ Payment Successful!</h1>
+    <p>Thank you for your order.</p>
+
+    <div class="card p-4 mt-4 shadow-sm mx-auto" style="max-width: 500px;">
+        <p><strong>Order ID:</strong>#{{ order_id }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Amount Paid:</strong> ₹{{ amount }}</p>
+        <a href="{% url 'ShopHome' %}" class="btn btn-primary mt-3">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}

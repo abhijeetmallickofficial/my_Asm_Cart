@@ -1,0 +1,104 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %}Contact Us | My Awesome Cart{% endblock %}
+
+{% block css %}
+    .contact-header {
+        background: linear-gradient(120deg, #212529, #343a40);
+        color: #fff;
+        padding: 60px 0;
+        text-align: center;
+    }
+
+    .contact-header h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .contact-form-section {
+        padding: 60px 15px;
+    }
+
+    .contact-card {
+        background-color: #f8f9fa;
+        border: none;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .contact-info i {
+        color: #0d6efd;
+        font-size: 1.5rem;
+        margin-right: 10px;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #0d6efd;
+    }
+{% endblock %}
+
+{% block body %}
+    <!-- Header -->
+    <div class="contact-header">
+        <div class="container">
+            <h1>Contact Us</h1>
+            <p class="lead">We'd love to hear from you! Reach out with your questions, feedback, or support needs.</p>
+        </div>
+    </div>
+
+    <!-- Contact Form Section -->
+    <div class="container contact-form-section">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="contact-card h-100">
+                    <h4 class="mb-4">📬 Send Us a Message</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="John Doe" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 1234567890">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Your Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="contact-card h-100">
+                    <h4 class="mb-4">📞 Contact Info</h4>
+                    <div class="contact-info">
+                        <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+                        <p><i class="fa-solid fa-envelope"></i> support@myawesomecart.com</p>
+                        <p><i class="fa-solid fa-map-marker-alt"></i> 123, Online Avenue, Tech City, India</p>
+                    </div>
+
+                    <h5 class="mt-4">🕒 Business Hours</h5>
+                    <p>Monday – Saturday: 9am – 7pm</p>
+                    <p>Sunday: Closed</p>
+
+                    <h5 class="mt-4">🌐 Follow Us</h5>
+                    <div>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-facebook fa-lg text-primary"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-instagram fa-lg text-danger"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter fa-lg text-info"></i></a>
+                        <a href="#" class="text-decoration-none"><i class="fab fa-linkedin fa-lg text-primary"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

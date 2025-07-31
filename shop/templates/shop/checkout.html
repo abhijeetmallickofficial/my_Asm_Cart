@@ -1,0 +1,159 @@
+{% extends "shop/basic.html" %}
+
+{% block title %}Checkout - My Awesome Cart{% endblock %}
+
+{% block css %}
+    <style>
+        .checkout-container {
+            max-width: 800px;
+            margin: auto;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .summary-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .summary-box h5 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .disabled-form {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="checkout-container">
+            <h2 class="text-center mb-4">🧾 Checkout</h2>
+{#            empty-cart-message#}
+            <div id="empty-cart-message" style="display: none;" class="alert alert-warning text-center">
+                🛒 Your cart is empty. Please add some items before checking out.
+            </div>
+{#            <form> with hidden inputs:#}
+            <form id="checkout-form" action="/shop/checkout/" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="cartdata" id="itemjson">  <!-- cart data stores the cart JSON string (for backend) -->
+                <input type="hidden" name="amount" id="amount">       <!-- amount stores the total bill -->
+
+                <!-- User Info -->
+                <div class="form-section">
+                    <h5>👤 Shipping Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+{#                            User Info Section#}
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Info -->
+                <div class="form-section">
+                    <h5>📦 Address</h5>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Full Address</label>
+                        <textarea name="address" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" name="city" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" name="state" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="zip" class="form-label">ZIP Code</label>
+                            <input type="text" name="zip" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="form-section summary-box">
+                    <h5>🛒 Order Summary</h5>
+                    <div id="order-summary">Loading your cart items...</div>
+                </div>
+
+                <!-- Payment -->
+                <div class="form-section">
+                    <h5>💳 Payment Method</h5>
+                    <select name="payment_method" class="form-select" required>
+                        <option value="">Choose...</option>
+                        <option value="cod">Cash on Delivery</option>
+                        <option value="upi">UPI</option>
+                        <option value="card">Credit/Debit Card</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Place Order ✅</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("checkout-form");
+            const cart = localStorage.getItem("cart") || "{}"; //Retrieve Cart from LocalStorage
+            const cartInput = document.getElementById("itemjson");
+            const amountInput = document.getElementById("amount");
+            // If Cart Empty → Disable Form
+            if (!cart || cart === "{}") {
+                document.getElementById("empty-cart-message").style.display = "block";
+                form.classList.add("disabled-form");
+                form.querySelector("button[type='submit']").disabled = true;
+                return;
+            }
+
+            // Also show order summary and calculate amount
+            const summary = document.getElementById("order-summary");
+            let cartObj = JSON.parse(cart);
+            let content = `<table class="table table-bordered table-sm">
+                <thead><tr><th>#</th><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>`;
+            let count = 1, total = 0;
+            for (let pid in cartObj) {  //Loops through cart
+                let item = cartObj[pid];
+                content += `<tr>
+                    <td>${count++}</td>
+                    <td>${item.name}</td>
+                    <td>${item.qty}</td>
+                    <td>₹${item.price}</td>
+                    <td>₹${item.qty * item.price}</td>
+                </tr>`;
+                total += item.qty * item.price;  //Shows each item: Name, Qty, Price, Subtotal
+            }
+            content += `</tbody></table><p class="text-end fw-bold">Grand Total: ₹${total}</p>`;
+            summary.innerHTML = content;
+
+            // Set hidden fields before submit
+            form.addEventListener("submit", function () {
+                cartInput.value = cart;
+                amountInput.value = total;
+                console.log("✅ Set cartdata before submit:", cartInput.value);
+                console.log("💰 Amount set:", amountInput.value);
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "shop/basic.html" %}
+
+{% block title %}Thank You for Your Order!{% endblock %}
+
+{% block css %}
+    <style>
+        .thankyou-container {
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .thankyou-container h1 {
+            font-size: 2.5rem;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .thankyou-container p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .thankyou-container .emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .order-id {
+            font-size: 1.2rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .btn-shop {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn-shop:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="thankyou-container text-center mt-5">
+    <div class="emoji">🎉</div>
+    <h1>Order Confirmed!</h1>
+
+    {% if order_id %}
+        <div class="order-id">
+            <p class="mb-0">Your Order ID is: <span class="badge bg-primary fs-6">#{{ order_id }}</span></p>
+           <p class="mt-2">
+            <a href="/shop/tracker/" class="btn btn-outline-secondary btn-sm mt-2">
+                🚚 Track Your Order
+            </a>
+        </p>
+        </div>
+    {% endif %}
+</div>
+    <div class="text-center">
+     <a href="{% url 'Proceed' %}?order_id={{ order_id }}" class="btn btn-primary mt-3">Proceed to Payment</a>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Clear cart from localStorage
+            localStorage.removeItem("cart");
+            console.log("🧹 Cart cleared after order.");
+        });
+    </script>
+{% endblock %}

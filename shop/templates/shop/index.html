@@ -1,0 +1,214 @@
+{#Inherits layout from shop/basic.html — this usually contains the common header, footer, and nav bar.#}
+{% extends 'shop/basic.html' %}
+
+{% block title %}Home - My Awesome Cart{% endblock %}
+
+{# This is my CSS Block #}
+{% block css %}
+    <style>
+        .carousel-indicators .active {
+            background-color: blue;
+        }
+
+        .card-img-top {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .card {
+            height: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-indicators {
+            bottom: 0;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: blue;
+        }
+
+        .section-title {
+            margin-top: 40px;
+            font-weight: bold;
+        }
+
+        .remove, .add, .cart, .quickview {
+            position: relative;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .qty-control-area {
+            pointer-events: auto;
+        }
+
+        .remove, .add {
+            width: 32px;
+            padding: 4px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: auto;
+            height: auto;
+            bottom: 40%;
+            opacity: 30%;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block body %}
+    {#    This is a Bootstrap container that adds horizontal padding and centers content responsively.#}
+    <div class="container">
+
+        {#        d-flex justify-content-between align-items-center: Aligns items horizontally, spreads them apart, and centers#}
+        {#        them vertically.#}
+        {#        #cart-count: Updated by JS to show the total number of items in the cart.#}
+        {#        #clear-cart: Button to clear the cart (event handled in cart.js).#}
+
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <h4>🛒 Cart Items: <span id="cart-count">0</span></h4>
+            <button id="clear-cart" class="btn btn-danger">Clear Cart</button>
+        </div>
+
+        {#  allprods is a list of product groups (each might represent a category like "Electronics", "Fashion", etc.).#}
+        {#  loop_id = forloop.counter gives a unique number for each group to use as a unique carousel ID.#}
+{#       Loop Through Product Groups#}
+        {% for group in allprods %}
+            {% with loop_id=forloop.counter %}
+                {#                Displays a heading for the group (e.g., "Flash Sale on Electronics").#}
+                <h2 class="section-title">Flash Sale on {{ group.title }}</h2>
+
+                {#  Creates a Bootstrap 5 carousel with auto-slide every 3 seconds.#}
+                {#  data-bs-touch="false" disables swipe (mobile).#}
+                {#  data-bs-pause="false" disables pause on hover.#}
+                <div id="carousel{{ loop_id }}" class="carousel slide my-3"
+                     data-bs-touch="false" data-bs-pause="hover">
+
+{#                   Carousel Indicators#}
+{#                -----------------------------#}
+                    {#   Shows the dot indicators under each carousel.#}
+                    {#   Loops over group.chunks, which contains product batches (like 4 products per slide).#}
+                    {#  Sets the first button as active for initial visibility.#}
+                    <div class="carousel-indicators">
+                        {% for i in group.chunks %}
+                            <button type="button" data-bs-target="#carousel{{ loop_id }}"
+                                    data-bs-slide-to="{{ forloop.counter0 }}"
+                                    class="{% if forloop.first %}active{% endif %}"
+                                    aria-label="Slide {{ forloop.counter }}"></button>
+                        {% endfor %}
+                    </div>
+
+{#                  Carousel Items (Slides)                                                                                                    #}
+{#                -----------------------------------#}
+                    {#  carousel-inner wraps all slides.#}
+                    {#    Each chunk is a group of 4 products per slide.#}
+                    {#      carousel-item is a slide — active class is added to the first one.#}
+                    <div class="carousel-inner">
+                        {% for chunk in group.chunks %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="row">
+                                    {% for p in chunk %}
+{#                                        Product Cards (Inside Slide)#}
+{#                                        ----------------------------------#}
+                                        {#  Each product is rendered in a Bootstrap card inside a 4-column grid (col-md-3).#}
+                                        {#Shows product image, name, and short description.#}
+                                        <div class="col-md-3 mb-4 d-flex align-items-stretch">
+                                            <div class="card w-100">
+                                                <img src="/media/{{ p.image }}" class="card-img-top"
+                                                     alt="{{ p.product_name }}">
+                                                <div class="card-body d-flex flex-column">
+                                                    <p class="card-text fw-bold text-success">
+                                                        <strong>Price:</strong>₹{{ p.price|floatformat:2 }}</p>
+                                                    <h5 class="card-title">{{ p.product_name }}</h5>
+                                                    <p class="card-text">{{ p.desc }}</p>
+
+                                                    {#  Unique ID like pr5, pr12 for easy JS access.#}
+                                                    {#Adds the product to cart and then hides itself, showing quantity controls instead.#}
+                                                    {#mt-auto pushes the button to the bottom of the card body using flex.#}
+                                                    <!-- "Add to Cart" button -->
+                                                    <button class="btn btn-primary cart"
+                                                            id="pr{{ p.product_id }}"
+                                                            data-name="{{ p.product_name }}"
+                                                            data-price="{{ p.price|floatformat:2 }}">
+                                                        Add to Cart
+                                                    </button>
+
+                                                    {##}
+                                                    {# Initially hidden (display: none) until the product is added to cart.#}
+                                                    {#Shows:#}
+                                                    {#Remove (−) button#}
+                                                    {#Quantity display (e.g. qty6)#}
+                                                    {#Add (+) button#}
+                                                    {#Uses data-id for JS to identify which product it belongs to.#}
+                                                    <div id="qtyControls{{ p.product_id }}"
+                                                         class="d-flex align-items-center justify-content-between mt-2 qty-control-area"
+                                                         style="display: none;">
+                                                        <button class="btn btn-sm btn-outline-danger remove"
+                                                                data-id="{{ p.product_id }}"
+                                                                data-name="{{ p.product_name }}">−
+                                                        </button>
+                                                        <span id="qty{{ p.product_id }}" class="mx-2 fw-bold">0</span>
+                                                        <!-- Quantity + button -->
+                                                        <button class="btn btn-sm btn-outline-success add"
+                                                                data-id="{{ p.product_id }}"
+                                                                data-name="{{ p.product_name }}"
+                                                                data-price="{{ p.price|floatformat:2 }}">
+                                                            +
+                                                        </button>
+
+                                                    </div>
+
+                                                    {#   Takes the user to a detailed product page.#}
+                                                    {#Example: /shop/products/5 opens the product with ID 5.#}
+                                                    <a href="/shop/products/{{ p.product_id }}"
+                                                       id="qv{{ p.product_id }}" class="btn btn-primary quickview mt-2">Quick
+                                                        View</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ loop_id }}"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ loop_id }}"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}
+
+{#Displays a cart header showing total cart items.#}
+{#Iterates over allprods, creating a carousel for each product group.#}
+{#Each carousel contains multiple cards (products), shown in slides of 4 items each.#}
+{#Each product includes:#}
+{#Image#}
+{#Title & Description#}
+{#Add to Cart button#}
+{#Quantity controls (+, −)#}
+{#Quick View button#}
+{#Bootstrap Carousel allows for automatic and manual sliding.#}
+{#Quantity and cart logic is handled in your external cart.js.#}
+

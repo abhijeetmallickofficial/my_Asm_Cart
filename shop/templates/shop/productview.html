@@ -1,0 +1,102 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %}{{ product.product_name }} | My Awesome Cart{% endblock %}
+
+{% block css %}
+    .product-container {
+        margin-top: 40px;
+    }
+
+    .product-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .product-details {
+        padding: 20px;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .product-desc {
+        margin-top: 20px;
+        font-size: 1.1rem;
+    }
+
+    .btn-cart {
+        margin-top: 30px;
+    }
+{% endblock %}
+
+{% block body %}
+    <div class="container product-container">
+{#         Product Image and Details:#}
+{#        ---------------------------------#}
+        <div class="row">
+            <div class="col-md-6">
+                <img src="/media/{{ product.image }}" class="product-image shadow" alt="{{ product.product_name }}">
+            </div>
+            <div class="col-md-6 product-details">
+{#                Right Column#}
+{#                ------------------#}
+                <h2 class="mb-3">{{ product.product_name }}</h2>
+                <p class="product-price">₹{{ product.price }}</p>
+                <p class="text-muted"><strong>Category:</strong> {{ product.category }}</p>
+                <p class="product-desc">{{ product.desc }}</p>
+{#                Add to Cart and Buy Now#}
+{#                ----------------------------#}
+                <button id="pr{{ product.product_id }}" class="btn btn-success btn-cart cart">
+                    <i class="fa fa-cart-plus"></i> Add to Cart
+                </button>
+                <button id="buy{{ product.product_id }}" class="btn btn-success btn-cart cart">
+                    <i class="fa fa-cart-plus"></i> Buy Now
+                </button>
+
+                <a href="{% url 'ShopHome' %}" class="btn btn-warning btn-cart ms-2">
+                    <i class="fa fa-arrow-left"></i> Back to Shop
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            {#Retrieves cart from localStorage (browser memory,If none exists, starts with an empty cart.)#}
+            let cart = {};
+            if (localStorage.getItem("cart")) {
+                cart = JSON.parse(localStorage.getItem("cart"));
+            }
+            updateCartCount();
+
+            {#Add to Cart Button#}
+            const addToCartBtn = document.getElementById("pr{{ product.product_id }}");
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener("click", function () {
+                    let id = "{{ product.product_id }}";
+                    cart[id] = cart[id] ? cart[id] + 1 : 1;
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    updateCartCount();
+                    alert("✅ Product added to cart!");
+                });
+            }
+
+            {#Update Cart Count#}
+            function updateCartCount() {
+                let count = 0;
+                for (const key in cart) {  //Loops through all cart items to count total quantity.
+                    count += cart[key];
+                }
+                document.getElementById("cart").innerText = count;//Update  Navbar cart badge #cart,Main cart count #cart-count
+                const pageCount = document.getElementById("cart-count");
+                if (pageCount) pageCount.innerText = count;
+            }
+        });
+    </script>
+{% endblock %}

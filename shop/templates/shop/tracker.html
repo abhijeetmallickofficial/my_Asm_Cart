@@ -1,0 +1,90 @@
+{% extends "shop/basic.html" %}
+{% block title %}Track Your Order{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h2 class="text-center">📦 Track Your Order</h2>
+
+        <form method="POST" class="mt-4 mb-4">
+            {% csrf_token %}
+            <input type="text" name="order_id" class="form-control mb-2" placeholder="Enter Order ID" required>
+            <input type="email" name="email" class="form-control mb-2" placeholder="Enter Your Email" required>
+            <button class="btn btn-primary w-100">Track</button>
+        </form>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        {% if order %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    ✅ Order #{{ order.id }} by {{ order.name }}
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">🛍 Products in Order:</h5>
+                    <div class="row">
+                        {% for product in products %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow">
+                                    <img src="{{ product.image.url }}" class="card-img-top"
+                                         alt="{{ product.product_name }}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ product.product_name }}</h5>
+                                        <p class="card-text">{{ product.desc|truncatewords:20 }}</p>
+                                        <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                                        <p><strong>Quantity:</strong> {{ product.qty }}</p>
+                                        <p><strong>Subtotal:</strong> ₹{{ product.subtotal }}</p>
+                                        <p><strong>Delivery Status:</strong> {{ product.delivery_status }}</p>
+
+                                        <!-- Progress Bar -->
+                                        <div class="progress mt-3" style="height: 20px;">
+                                            <div class="progress-bar
+                            {% if "Delivered" in product.delivery_status %}
+                                bg-success
+                            {% elif "Shipped" in product.delivery_status %}
+                                bg-info
+                            {% elif "Processing" in product.delivery_status %}
+                                bg-warning
+                            {% else %}
+                                bg-secondary
+                            {% endif %}"
+                                                 role="progressbar"
+                                                 style="width:
+                                                         {% if "Delivered" in product.delivery_status %}
+                                                             100%
+                                                         {% elif "Shipped" in product.delivery_status %}
+                                                             66%
+                                                         {% elif "Processing" in product.delivery_status %}
+                                                             33%
+                                                         {% else %}
+                                                             10%
+                                                         {% endif %};"
+                                                 aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                {{ product.delivery_status }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+
+                    {% if updates %}
+                        <h5>📌 Order Updates:</h5>
+                        <ul class="list-group">
+                            {% for update in updates %}
+                                <li class="list-group-item">
+                                    <strong>{{ update.timestamp|date:"d M Y, H:i" }}</strong> - {{ update.update_desc }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No updates found for this order.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

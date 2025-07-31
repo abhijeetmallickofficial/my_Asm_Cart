@@ -1,0 +1,47 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %}Proceed to Payment{% endblock %}
+
+{% block css %}
+<style>
+  .payment-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    background-color: #fff;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="payment-container">
+  <h2 class="text-center mb-4">Proceed to Payment</h2>
+  <form method="post" action="{% url 'checkout' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="name" class="form-label">Full Name</label>
+      <input type="text" class="form-control" name="name" id="name" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email address</label>
+      <input type="email" class="form-control" name="email" id="email" required>
+    </div>
+    <div class="mb-3">
+      <label for="address" class="form-label">Address</label>
+      <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="amount" class="form-label">Amount (₹)</label>
+      <input type="number" class="form-control" name="amount" id="amount" value="199" required>
+    </div>
+<a href="{% url 'payment_success' %}" class="btn btn-success w-100">Pay Now</a>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- For future Razorpay integration -->
+{% endblock %}
